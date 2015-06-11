@@ -1,13 +1,14 @@
 'use strict';
+
 var debug = require('debug')('dev');
 var restify = require('restify');
 var favicons = require('./src/favicons');
 
 var server = restify.createServer();
 
-server.on('uncaughtException', function(err) {
-  debug('Caught exception: ' + err);
-});
+// server.on('uncaughtException', function(err) {
+//   debug('Caught exception: ' + err);
+// });
 
 function unknownMethodHandler(req, res) {
   if (req.method.toLowerCase() === 'options') {
@@ -38,6 +39,8 @@ server.use(restify.bodyParser({ mapParams: false }));
 server.get('/get', favicons.getFavicon);
 // server.head('/get', favicons.getFavicon);
 
-server.listen(8080, function() {
+var port = Number(process.env.PORT || 8080);
+
+server.listen(port, function() {
   debug('%s listening at %s', server.name, server.url);
 });
