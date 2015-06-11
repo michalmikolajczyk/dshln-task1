@@ -1,12 +1,17 @@
+'use strict';
+var debug = require('debug')('dev');
 var restify = require('restify');
 var favicons = require('./src/favicons');
 
 var server = restify.createServer();
 
+server.on('uncaughtException', function(err) {
+  debug('Caught exception: ' + err);
+});
+
 function unknownMethodHandler(req, res) {
   if (req.method.toLowerCase() === 'options') {
-    console.log('received an options method request');
-    var allowHeaders = ['Accept', 'Accept-Version', 'Content-Type', 'Api-Version', 'Origin', 'X-Requested-With', 'X-Nowness-Language']; // added Origin & X-Requested-With
+    var allowHeaders = ['Accept', 'Accept-Version', 'Content-Type', 'Api-Version', 'Origin', 'X-Requested-With']; // added Origin & X-Requested-With
 
     if (res.methods.indexOf('OPTIONS') === -1) {
       res.methods.push('OPTIONS');
@@ -23,16 +28,16 @@ function unknownMethodHandler(req, res) {
   }
 }
 
-server.use(restify.fullResponse());
 server.on('MethodNotAllowed', unknownMethodHandler);
 
+server.use(restify.fullResponse());
 server.use(restify.acceptParser(server.acceptable));
 server.use(restify.jsonp());
 server.use(restify.bodyParser({ mapParams: false }));
 
 server.get('/get', favicons.getFavicon);
-server.head('/get', favicons.getFavicon);
+// server.head('/get', favicons.getFavicon);
 
 server.listen(8080, function() {
-  console.log('%s listening at %s', server.name, server.url);
+  debug('%s listening at %s', server.name, server.url);
 });
