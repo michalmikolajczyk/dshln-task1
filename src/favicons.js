@@ -38,6 +38,7 @@ function getFavicon(req, res, next) {
           if (response.statusCode === 200 && !results.favicon) {
             results.favicon = newRequest.uri;
           }
+          debug(results);
           fulfill();
         };
 
@@ -233,14 +234,14 @@ function getFavicon(req, res, next) {
   strategies.forEach(function (strategy) {
     
     if (strategy.name && typeof strategy.handler === 'function') {
-      debug('processing strategy' + strategy.name);
+      debug('processing strategy ' + strategy.name);
       promises.push(new RSVP.Promise(strategy.handler));
     }
 
   });
 
   RSVP
-    .all(promises)
+    .allSettled(promises)
     .catch(function (reason) {
       debug(reason);
     })
@@ -248,8 +249,6 @@ function getFavicon(req, res, next) {
       debug('fulfill');
       processResults();
     });
-
-
 
 }
 
